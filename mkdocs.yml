@@ -1,0 +1,9 @@
+site_name: AzBuilder
+repo_url: https://github.com/lagebj/AzBuilder
+theme: readthedocs
+pages:
+  - Home: index.md
+  - AzBuilder Basics:
+    - What is AzBuilder: about.md
+    - Quick Start: quick-start.md
+  - Acknowledgements: acknowledgements.md
