@@ -8,8 +8,8 @@
     GUID              = 'd730c1d2-10ae-43f7-bc90-c1b822b2c46e'
     Author            = 'Lage Berger Jensen'
     CompanyName       = ''
-    Copyright         = '(c) 2021 Lage Berger Jensen. All rights reserved.'
-    Description       = 'Provision your own ARM templates in a hierarchical and consistant manner.'
+    Copyright         = 'Lage Berger Jensen'
+    Description       = 'Module to manage hierarchical Azure deployment.'
     FunctionsToExport = @(
         'Build-Template',
         'Invoke-Deployment',
@@ -19,7 +19,7 @@
     VariablesToExport = @()
     AliasesToExport   = @()
     # CompatiblePSEditions = @()
-    # PowerShellVersion = ''
+    PowerShellVersion = '5.1'
     # PowerShellHostName = ''
     # PowerShellHostVersion = ''
     # DotNetFrameworkVersion = ''
@@ -40,13 +40,20 @@
         PSData = @{
             Tags = @(
                 'Azure',
-                'ARM template',
-                'Deploy'
+                'ARM',
+                'Deployment',
+                'ResourceManager',
+                'Hierarchical',
+                'Pipeline',
+                'CI/CD',
+                'DevOps'
             )
             LicenseUri = 'https://github.com/lagebj/AzBuilder/blob/master/LICENSE'
             ProjectUri = 'https://github.com/lagebj/AzBuilder'
             # IconUri = ''
-            ReleaseNotes = 'https://github.com/lagebj/AzBuilder/blob/master/ReleaseNotes.md'
+            ReleaseNotes = @'
+                * First version published to PS gallery.
+'@
         }
     }
     # HelpInfoURI = ''
