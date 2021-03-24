@@ -39,31 +39,31 @@ AzBuilder checks current Azure environment and verifies if management groups and
 
 #### Example folder structure
 
-📦c:\temp\AzBuilder-root
- ┣ 📂azb
- ┃ ┣ 📂azb-decommissioned
- ┃ ┣ 📂azb-landingzones
- ┃ ┃ ┣ 📂azb-corp
- ┃ ┃ ┃ ┗ 📂b6d0fd4f-30b4-4cc4-88dd-39d84c5d881a
- ┃ ┃ ┃ ┃ ┗ 📂rg-app (westeurope)
- ┃ ┃ ┗ 📂azb-online
- ┃ ┣ 📂azb-platform
- ┃ ┃ ┣ 📂azb-connectivity
- ┃ ┃ ┣ 📂azb-identity
- ┃ ┃ ┗ 📂azb-management
- ┃ ┃ ┃ ┣ 📂1fb67e23-8f99-41e9-99bf-33236d129fba
- ┃ ┃ ┃ ┃ ┣ 📂rg-mgmt (northeurope)
- ┃ ┃ ┃ ┃ ┃ ┣ 📜solution_AgentHealthAssessment.json
- ┃ ┃ ┃ ┃ ┃ ┗ 📜solution_AgentHealthAssessment.parameters.json
- ┃ ┃ ┃ ┣ 📜policyAssignment_Deploy-LogAnalytics.json
- ┃ ┃ ┃ ┣ 📜policyAssignment_Deploy-LogAnalytics.parameters.json
- ┃ ┃ ┃ ┣ 📜roleAssignment_Deploy-LogAnalytics.json
- ┃ ┃ ┃ ┗ 📜roleAssignment_Deploy-LogAnalytics.parameters.json
- ┃ ┣ 📂azb-sandboxes
- ┃ ┣ 📜policyDefinition_Deploy-ASC-Standard.json
- ┃ ┣ 📜policyDefinition_Deploy-ASC-Standard.parameters.json
- ┃ ┣ 📜policyDefinition_Deploy-LogAnalytics.json
- ┗ ┗ 📜policyDefinition_Deploy-LogAnalytics.parameters.json
+📦c:\temp\AzBuilder-root\
+ ┣ 📂azb\
+ ┃ ┣ 📂azb-decommissioned\
+ ┃ ┣ 📂azb-landingzones\
+ ┃ ┃ ┣ 📂azb-corp\
+ ┃ ┃ ┃ ┗ 📂b6d0fd4f-30b4-4cc4-88dd-39d84c5d881a\
+ ┃ ┃ ┃ ┃ ┗ 📂rg-app (westeurope)\
+ ┃ ┃ ┗ 📂azb-online\
+ ┃ ┣ 📂azb-platform\
+ ┃ ┃ ┣ 📂azb-connectivity\
+ ┃ ┃ ┣ 📂azb-identity\
+ ┃ ┃ ┗ 📂azb-management\
+ ┃ ┃ ┃ ┣ 📂1fb67e23-8f99-41e9-99bf-33236d129fba\
+ ┃ ┃ ┃ ┃ ┣ 📂rg-mgmt (northeurope)\
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜solution_AgentHealthAssessment.json\
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜solution_AgentHealthAssessment.parameters.json\
+ ┃ ┃ ┃ ┣ 📜policyAssignment_Deploy-LogAnalytics.json\
+ ┃ ┃ ┃ ┣ 📜policyAssignment_Deploy-LogAnalytics.parameters.json\
+ ┃ ┃ ┃ ┣ 📜roleAssignment_Deploy-LogAnalytics.json\
+ ┃ ┃ ┃ ┗ 📜roleAssignment_Deploy-LogAnalytics.parameters.json\
+ ┃ ┣ 📂azb-sandboxes\
+ ┃ ┣ 📜policyDefinition_Deploy-ASC-Standard.json\
+ ┃ ┣ 📜policyDefinition_Deploy-ASC-Standard.parameters.json\
+ ┃ ┣ 📜policyDefinition_Deploy-LogAnalytics.json\
+ ┗ ┗ 📜policyDefinition_Deploy-LogAnalytics.parameters.json\
 
 In the example above, the root folder is `c:\temp\AzBuilder-root` and is considered as `Tenant Root Group`. The folder `azb` is considered a management group and subfolders `azb-decommissioned`, `azb-landingzones`, `azb-platform` and `azb-sandboxes` are considered child management groups to `azb`.
 
