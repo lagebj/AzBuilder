@@ -35,10 +35,33 @@ function Build-Template {
 
             [System.Collections.Generic.List[AzBuilderScope]] $AzBuilderScope = EnumerateStructure $InputPath
 
-            InitializeManagementGroupTemplate $AzBuilderScope $OutputPath
-            InitializeSubscriptionTemplate $AzBuilderScope $OutputPath
-            InitializeResourceGroupTemplate $AzBuilderScope $OutputPath
-            InitializeResourceTemplate $AzBuilderScope $OutputPath
+            [pscustomobject[]] $ManagementGroupDeployments = InitializeManagementGroupTemplate $AzBuilderScope $OutputPath
+            if ($ManagementGroupDeployments) {
+                foreach ($Deployment in $ManagementGroupDeployments) {
+                    'Template for deployment {0} has been created and contains resources: {1}.' -f $Deployment.DeploymentName, ($Deployment.Resources -join ', ')
+                }
+            }
+
+            [pscustomobject[]] $SubscriptionDeployments = InitializeSubscriptionTemplate $AzBuilderScope $OutputPath
+            if ($SubscriptionDeployments) {
+                foreach ($Deployment in $SubscriptionDeployments) {
+                    'Template for deployment {0} has been created and contains resources: {1}' -f $Deployment.DeploymentName, ($Deployment.Resources -join ', ')
+                }
+            }
+
+            [pscustomobject[]] $ResourceGroupDeployments = InitializeResourceGroupTemplate $AzBuilderScope $OutputPath
+            if ($ResourceGroupDeployments) {
+                foreach ($Deployment in $ResourceGroupDeployments) {
+                    'Template for deployment {0} has been created and contains resources: {1}' -f $Deployment.DeploymentName, ($Deployment.Resources -join ', ')
+                }
+            }
+
+            [pscustomobject[]] $ResourceDeployments = InitializeResourceTemplate $AzBuilderScope $OutputPath
+            if ($ResourceDeployments) {
+                foreach ($Deployment in $ResourceDeployments) {
+                    'Template for deployment {0} has been created and contains resources: {1}' -f $Deployment.DeploymentName, ($Deployment.Resources -join ', ')
+                }
+            }
         } catch {
             $PSCmdlet.ThrowTerminatingError($PSItem)
         }

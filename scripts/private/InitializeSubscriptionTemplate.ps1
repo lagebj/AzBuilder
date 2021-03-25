@@ -1,6 +1,6 @@
 function InitializeSubscriptionTemplate {
     [CmdletBinding()]
-    [OutputType([void])]
+    [OutputType([pscustomobject[]])]
 
     Param (
         [Parameter(Position = 0)]
@@ -11,7 +11,9 @@ function InitializeSubscriptionTemplate {
     )
 
     try {
-        [string] $TemplateFilePath = '{0}\AzBuilder.Move.Subscriptions_{1}.json' -f $Path, ((New-Guid).Guid.Substring(0,8))
+        [System.Collections.Generic.List[pscustomobject]] $DeploymentsList = @()
+        [string] $DeploymentName = 'AzBuilder.Move.Subscriptions_{0}' -f ((New-Guid).Guid.Substring(0,8))
+        [string] $TemplateFilePath = '{0}\{1}.json' -f $Path, $DeploymentName
 
         [pscustomobject] $TemplateObject = @'
             {
@@ -46,6 +48,19 @@ function InitializeSubscriptionTemplate {
             $Template = $TemplateObject | ConvertTo-Json -Depth 30
 
             FormatTemplate $Template | Out-File $TemplateFilePath
+
+            [pscustomobject] $DeploymentDetails = [pscustomobject] @{
+                DeploymentName = $DeploymentName
+                Resources = $TemplateObject.resources.name
+            }
+
+            $DeploymentsList.Add($DeploymentDetails)
+        }
+
+        if ($DeploymentsList) {
+            [pscustomobject[]] $DeploymentsList = $DeploymentsList
+
+            return $DeploymentsList
         }
     } catch {
         $PSCmdlet.ThrowTerminatingError($PSItem)

@@ -1,6 +1,6 @@
 function InitializeResourceGroupTemplate {
     [CmdletBinding()]
-    [OutputType([void])]
+    [OutputType([pscustomobject[]])]
 
     Param (
         [Parameter(Position = 0)]
@@ -11,11 +11,13 @@ function InitializeResourceGroupTemplate {
     )
 
     try {
+        [System.Collections.Generic.List[pscustomobject]] $DeploymentsList = @()
         [string[]] $Subscriptions = $AzBuilderScope | Where-Object -Property 'Scope' -eq 'ResourceGroup' | Select-Object -ExpandProperty 'Parent' -Unique
 
         foreach ($SubscriptionId in $Subscriptions) {
             [string] $SubscriptionPath = '{0}\subscriptions\{1}' -f $Path, $SubscriptionId
-            [string] $TemplateFilePath = '{0}\AzBuilder.Deploy.ResourceGroups_{1}.json' -f $SubscriptionPath, ((New-Guid).Guid.Substring(0,8))
+            [string] $DeploymentName = 'AzBuilder.Deploy.ResourceGroups_{0}' -f ((New-Guid).Guid.Substring(0,8))
+            [string] $TemplateFilePath = '{0}\{1}.json' -f $SubscriptionPath, $DeploymentName
 
             if (-not (Test-Path -Path $SubscriptionPath)) {
                 $null = New-Item -Path $SubscriptionPath -ItemType 'Directory'
@@ -57,7 +59,20 @@ function InitializeResourceGroupTemplate {
                 $Template = $TemplateObject | ConvertTo-Json -Depth 30
 
                 FormatTemplate $Template | Out-File $TemplateFilePath
+
+                [pscustomobject] $DeploymentDetails = [pscustomobject] @{
+                    DeploymentName = $DeploymentName
+                    Resources = $TemplateObject.resources.name
+                }
+
+                $DeploymentsList.Add($DeploymentDetails)
             }
+        }
+
+        if ($DeploymentsList) {
+            [pscustomobject[]] $DeploymentsList = $DeploymentsList
+
+            return $DeploymentsList
         }
     } catch {
         $PSCmdlet.ThrowTerminatingError($PSItem)

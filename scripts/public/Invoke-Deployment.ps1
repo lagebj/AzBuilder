@@ -27,6 +27,7 @@ function Invoke-Deployment {
 
                 if ($ManagementGroupTemplates) {
                     foreach ($Template in $ManagementGroupTemplates) {
+                        'Deploying template {0}' -f $Template.Name
                         $Deployment = New-AzTenantDeployment -Location 'westeurope' -TemplateFile $Template.FullName
 
                         [pscustomobject] $DeploymentDetails = [pscustomobject] @{
@@ -42,6 +43,7 @@ function Invoke-Deployment {
 
                 if ($SubscriptionTemplates) {
                     foreach ($Template in $SubscriptionTemplates) {
+                        'Deploying template {0}' -f $Template.Name
                         $Deployment = New-AzTenantDeployment -Location 'westeurope' -TemplateFile $Template.FullName
 
                         [pscustomobject] $DeploymentDetails = [pscustomobject] @{
@@ -71,6 +73,7 @@ function Invoke-Deployment {
 
                             if ($Templates) {
                                 foreach ($Template in $Templates) {
+                                    'Deploying template {0}' -f $Template.Name
                                     $Deployment = New-AzManagementGroupDeployment -ManagementGroupId $ManagementGroupDirectory.BaseName -Location 'westeurope' -TemplateFile $Template.FullName
 
                                     [pscustomobject] $DeploymentDetails = [pscustomobject] @{
@@ -98,6 +101,7 @@ function Invoke-Deployment {
 
                             if ($Templates) {
                                 foreach ($Template in $Templates) {
+                                    'Deploying template {0}' -f $Template.Name
                                     $Deployment = New-AzDeployment -Location 'westeurope' -TemplateFile $Template.FullName
 
                                     [pscustomobject] $DeploymentDetails = [pscustomobject] @{
@@ -119,6 +123,7 @@ function Invoke-Deployment {
 
                                     if ($Templates) {
                                         foreach ($Template in $Templates) {
+                                            'Deploying template {0}' -f $Template.Name
                                             $Deployment = New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupDirectory.BaseName -TemplateFile $Template.FullName -Mode 'Incremental'
 
                                             [pscustomobject] $DeploymentDetails = [pscustomobject] @{
