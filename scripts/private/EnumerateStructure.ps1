@@ -29,7 +29,7 @@ function EnumerateStructure {
                 [string] $RootItemName = $RootItem.Name
             }
 
-            [AzBuilderScope] $RootAzBuilderScope = [AzBuilderScope]::new($RootItemName, $Scope, ('{0}' -f $RootItem.FullName.ToLower().Replace(('{0}\' -f $Path.ToLower()), '')))
+            [AzBuilderScope] $RootAzBuilderScope = [AzBuilderScope]::new($RootItemName, $Scope, ('{0}' -f $RootItem.FullName.ToLower().Replace(('{0}{1}' -f $Path.ToLower(), [System.IO.Path]::DirectorySeparatorChar), '')))
             $AzBuilderList.Add($RootAzBuilderScope)
 
             foreach ($ChildPath in $RootAzBuilderScope.Path) {
@@ -50,7 +50,7 @@ function EnumerateStructure {
                         [string] $ChildItemName = $ChildItem.Name
                     }
 
-                    [AzBuilderScope] $ChildAzBuilderScope = [AzBuilderScope]::new($ChildItemName, $Scope, ('{0}' -f $ChildItem.FullName.ToLower().Replace(('{0}\' -f $Path.ToLower()), '')), $Location)
+                    [AzBuilderScope] $ChildAzBuilderScope = [AzBuilderScope]::new($ChildItemName, $Scope, ('{0}' -f $ChildItem.FullName.ToLower().Replace(('{0}{1}' -f $Path.ToLower(), [System.IO.Path]::DirectorySeparatorChar), '')), $Location)
                     $AzBuilderList.Add($ChildAzBuilderScope)
                 }
             }
