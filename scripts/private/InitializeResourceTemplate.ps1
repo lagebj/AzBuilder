@@ -38,8 +38,12 @@ function InitializeResourceTemplate {
         [System.Collections.Generic.List[string]] $Deployments = @()
 
         foreach ($Item in ($AzBuilderScope | Where-Object -Property 'Scope' -eq 'Tenant')) {
+            [string] $TenantId = $Item.Parent.Split('/')[-1]
+
             if ($Item.Templates) {
-                [string] $TenantId = $Item.Parent.Split('/')[-1]
+                [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource
+                [System.Collections.Generic.List[string]] $DeploymentDelayDependenciesList = @()
+                [bool] $ForceDeploymentDelay = $false
 
                 foreach ($TemplateSet in $Item.Templates) {
                     [pscustomobject] $ResourceObject = @'
@@ -67,6 +71,7 @@ function InitializeResourceTemplate {
                     $ResourceObject.properties.template = Get-Content -Path $TemplateSet.TemplateFilePath | ConvertFrom-Json
                     $ResourceObject.properties.template.'$schema' = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
                     $Deployments.Add(('[reference(resourceId(''Microsoft.Resources/deployments'', ''{0}'')).outputs.deploymentName.value]' -f $ResourceObject.name))
+                    $DeploymentDelayResourceObject.scope = $ResourceObject.scope
 
                     if ($ResourceObject.properties.template.outputs) {
                         $ResourceObject.properties.template = $ResourceObject.properties.template | Select-Object -ExcludeProperty 'outputs'
@@ -115,31 +120,47 @@ function InitializeResourceTemplate {
                     }
 
                     if ($ResourceObject.properties.template.resources[0].dependsOn) {
+                        [bool] $DeploymentDelay = $false
                         [System.Collections.Generic.List[string]] $Dependencies = @()
-                        foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
-                            [bool] $DeploymentDelay = $false
 
+                        foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
                             if (-not ($Dependency -like 'DeploymentDelay_*')) {
                                 $Dependencies.Add(('[resourceId(''Microsoft.Resources/deployments'', ''AzBuilder.{0}'')]' -f $Dependency))
                             } else {
                                 [bool] $DeploymentDelay = $true
                                 [int] $Iterations = $Dependency.Split('_')[-1]
+
+                                if ($DeploymentDelayResourceObject.copy.count -lt $Iterations) {
+                                    $DeploymentDelayResourceObject.copy.count = $Iterations
+                                }
                             }
                         }
 
                         $ResourceObject.properties.template.resources[0].dependsOn = @()
 
-                        $ResourceObject.dependsOn = [string[]] $Dependencies
-
                         if ($DeploymentDelay) {
-                            [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource $ResourceObject.name.Split('.')[-1] $ResourceObject.scope $Iterations $ResourceObject.dependsOn
-                            $ResourceObject.dependsOn = @(('[resourceId(''Microsoft.Resources/deployments'', ''DelayFor{0}_{1}'')]' -f $Iterations, $ResourceObject.name.Split('.')[-1]))
+                            foreach ($Dependency in $Dependencies) {
+                                $DeploymentDelayDependenciesList.Add($Dependency)
+                            }
 
-                            $TenantResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                            if (-not $DeploymentDelayDependenciesList) {
+                                [bool] $ForceDeploymentDelay = $true
+                            }
+
+                            $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                        } else {
+                            $ResourceObject.dependsOn = [string[]] $Dependencies
                         }
                     }
 
                     $TenantResourcesToDeploy.Add($ResourceObject)
+                }
+
+                if ($DeploymentDelayDependenciesList) {
+                    $DeploymentDelayResourceObject.dependsOn = [string[]] $DeploymentDelayDependenciesList
+                    $TenantResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                } elseif ($ForceDeploymentDelay) {
+                    $TenantResourcesToDeploy.Add($DeploymentDelayResourceObject)
                 }
 
                 $TenantTemplateObject.resources = [pscustomobject[]] $TenantResourcesToDeploy
@@ -188,6 +209,10 @@ function InitializeResourceTemplate {
 
             foreach ($Item in ($AzBuilderScope | Where-Object -FilterScript {$_.Scope -eq 'ManagementGroup' -and $_.Name -eq $ManagementGroupId})) {
                 if ($Item.Templates) {
+                    [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource
+                    [System.Collections.Generic.List[string]] $DeploymentDelayDependenciesList = @()
+                    [bool] $ForceDeploymentDelay = $false
+
                     foreach ($TemplateSet in $Item.Templates) {
                         [pscustomobject] $ResourceObject = @'
                             {
@@ -214,6 +239,7 @@ function InitializeResourceTemplate {
                         $ResourceObject.properties.template = Get-Content -Path $TemplateSet.TemplateFilePath | ConvertFrom-Json
                         $ResourceObject.properties.template.'$schema' = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
                         $Deployments.Add(('[reference(resourceId(''Microsoft.Resources/deployments'', ''{0}'')).outputs.deploymentName.value]' -f $ResourceObject.name))
+                        $DeploymentDelayResourceObject.scope = $ResourceObject.scope
 
                         if ($ResourceObject.properties.template.outputs) {
                             $ResourceObject.properties.template = $ResourceObject.properties.template | Select-Object -ExcludeProperty 'outputs'
@@ -262,15 +288,19 @@ function InitializeResourceTemplate {
                         }
 
                         if ($ResourceObject.properties.template.resources[0].dependsOn) {
+                            [bool] $DeploymentDelay = $false
                             [System.Collections.Generic.List[string]] $Dependencies = @()
-                            foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
-                                [bool] $DeploymentDelay = $false
 
+                            foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
                                 if (-not ($Dependency -like 'DeploymentDelay_*')) {
                                     $Dependencies.Add(('[resourceId(''Microsoft.Resources/deployments'', ''AzBuilder.{0}'')]' -f $Dependency))
                                 } else {
                                     [bool] $DeploymentDelay = $true
                                     [int] $Iterations = $Dependency.Split('_')[-1]
+
+                                    if ($DeploymentDelayResourceObject.copy.count -lt $Iterations) {
+                                        $DeploymentDelayResourceObject.copy.count = $Iterations
+                                    }
                                 }
                             }
 
@@ -279,14 +309,28 @@ function InitializeResourceTemplate {
                             $ResourceObject.dependsOn = [string[]] $Dependencies
 
                             if ($DeploymentDelay) {
-                                [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource $ResourceObject.name.Split('.')[-1] $ResourceObject.scope $Iterations $ResourceObject.dependsOn
-                                $ResourceObject.dependsOn = @(('[resourceId(''Microsoft.Resources/deployments'', ''DelayFor{0}_{1}'')]' -f $Iterations, $ResourceObject.name.Split('.')[-1]))
+                                foreach ($Dependency in $Dependencies) {
+                                    $DeploymentDelayDependenciesList.Add($Dependency)
+                                }
 
-                                $ManagementGroupResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                                if (-not $DeploymentDelayDependenciesList) {
+                                    [bool] $ForceDeploymentDelay = $true
+                                }
+
+                                $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                            } else {
+                                $ResourceObject.dependsOn = [string[]] $Dependencies
                             }
                         }
 
                         $ManagementGroupResourcesToDeploy.Add($ResourceObject)
+                    }
+
+                    if ($DeploymentDelayDependenciesList) {
+                        $DeploymentDelayResourceObject.dependsOn = [string[]] $DeploymentDelayDependenciesList
+                        $ManagementGroupResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                    } elseif ($ForceDeploymentDelay) {
+                        $ManagementGroupResourcesToDeploy.Add($DeploymentDelayResourceObject)
                     }
 
                     $ManagementGroupTemplateObject.resources = [pscustomobject[]] $ManagementGroupResourcesToDeploy
@@ -336,6 +380,10 @@ function InitializeResourceTemplate {
 
             foreach ($Item in ($AzBuilderScope | Where-Object -FilterScript {$_.Scope -eq 'Subscription' -and $_.Name -eq $SubscriptionId})) {
                 if ($Item.Templates) {
+                    [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource
+                    [System.Collections.Generic.List[string]] $DeploymentDelayDependenciesList = @()
+                    [bool] $ForceDeploymentDelay = $false
+
                     foreach ($TemplateSet in $Item.Templates) {
                         [pscustomobject] $ResourceObject = @'
                             {
@@ -362,6 +410,7 @@ function InitializeResourceTemplate {
                         $ResourceObject.properties.template = Get-Content -Path $TemplateSet.TemplateFilePath | ConvertFrom-Json
                         $ResourceObject.properties.template.'$schema' = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
                         $Deployments.Add(('[reference(resourceId(''Microsoft.Resources/deployments'', ''{0}'')).outputs.deploymentName.value]' -f $ResourceObject.name))
+                        $DeploymentDelayResourceObject.scope = 'Microsoft.Management/managementGroups/{0}' -f $TenantId
 
                         if ($ResourceObject.properties.template.outputs) {
                             $ResourceObject.properties.template = $ResourceObject.properties.template | Select-Object -ExcludeProperty 'outputs'
@@ -410,31 +459,47 @@ function InitializeResourceTemplate {
                         }
 
                         if ($ResourceObject.properties.template.resources[0].dependsOn) {
+                            [bool] $DeploymentDelay = $false
                             [System.Generic.Collections.List[string]] $Dependencies = @()
-                            foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
-                                [bool] $DeploymentDelay = $false
 
+                            foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
                                 if (-not ($Dependency -like 'DeploymentDelay_*')) {
                                     $Dependencies.Add(('[resourceId(''Microsoft.Resources/deployments'', ''AzBuilder.{0}'')]' -f $Dependency))
                                 } else {
                                     [bool] $DeploymentDelay = $true
                                     [int] $Iterations = $Dependency.Split('_')[-1]
+
+                                    if ($DeploymentDelayResourceObject.copy.count -lt $Iterations) {
+                                        $DeploymentDelayResourceObject.copy.count = $Iterations
+                                    }
                                 }
                             }
 
                             $ResourceObject.properties.template.resources[0].dependsOn = @()
 
-                            $ResourceObject.dependsOn = [string[]] $Dependencies
-
                             if ($DeploymentDelay) {
-                                [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource $ResourceObject.name.Split('.')[-1] $ResourceObject.scope $Iterations $ResourceObject.dependsOn
-                                $ResourceObject.dependsOn = @(('[resourceId(''Microsoft.Resources/deployments'', ''DelayFor{0}_{1}'')]' -f $Iterations, $ResourceObject.name.Split('.')[-1]))
+                                foreach ($Dependency in $Dependencies) {
+                                    $DeploymentDelayDependenciesList.Add($Dependency)
+                                }
 
-                                $SubscriptionResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                                if (-not $DeploymentDelayDependenciesList) {
+                                    [bool] $ForceDeploymentDelay = $true
+                                }
+
+                                $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                            } else {
+                                $ResourceObject.dependsOn = [string[]] $Dependencies
                             }
                         }
 
                         $SubscriptionResourcesToDeploy.Add($ResourceObject)
+                    }
+
+                    if ($DeploymentDelayDependenciesList) {
+                        $DeploymentDelayResourceObject.dependsOn = [string[]] $DeploymentDelayDependenciesList
+                        $SubscriptionResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                    } elseif ($ForceDeploymentDelay) {
+                        $SubscriptionResourcesToDeploy.Add($DeploymentDelayResourceObject)
                     }
 
                     $SubscriptionTemplateObject.resources = [pscustomobject[]] $SubscriptionResourcesToDeploy
@@ -482,6 +547,10 @@ function InitializeResourceTemplate {
                 [System.Collections.Generic.List[string]] $Deployments = @()
 
                 if ($Item.Templates) {
+                    [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource
+                    [System.Collections.Generic.List[string]] $DeploymentDelayDependenciesList = @()
+                    [bool] $ForceDeploymentDelay = $false
+
                     foreach ($TemplateSet in $Item.Templates) {
                         [pscustomobject] $ResourceObject = @'
                             {
@@ -505,6 +574,7 @@ function InitializeResourceTemplate {
                         $ResourceObject.properties.template = Get-Content -Path $TemplateSet.TemplateFilePath | ConvertFrom-Json
                         $ResourceObject.properties.template.'$schema' = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
                         $Deployments.Add(('[reference(resourceId(''Microsoft.Resources/deployments'', ''{0}'')).outputs.deploymentName.value]' -f $ResourceObject.name))
+                        $DeploymentDelayResourceObject.scope = 'Microsoft.Management/managementGroups/{0}' -f $TenantId
 
                         if ($ResourceObject.properties.template.outputs) {
                             $ResourceObject.properties.template = $ResourceObject.properties.template | Select-Object -ExcludeProperty 'outputs'
@@ -553,31 +623,47 @@ function InitializeResourceTemplate {
                         }
 
                         if ($ResourceObject.properties.template.resources[0].dependsOn) {
+                            [bool] $DeploymentDelay = $false
                             [System.Generic.Collections.List[string]] $Dependencies = @()
-                            foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
-                                [bool] $DeploymentDelay = $false
 
+                            foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
                                 if (-not ($Dependency -like 'DeploymentDelay_*')) {
                                     $Dependencies.Add(('[resourceId(''Microsoft.Resources/deployments'', ''AzBuilder.{0}'')]' -f $Dependency))
                                 } else {
                                     [bool] $DeploymentDelay = $true
                                     [int] $Iterations = $Dependency.Split('_')[-1]
+
+                                    if ($DeploymentDelayResourceObject.copy.count -lt $Iterations) {
+                                        $DeploymentDelayResourceObject.copy.count = $Iterations
+                                    }
                                 }
                             }
 
                             $ResourceObject.properties.template.resources[0].dependsOn = @()
 
-                            $ResourceObject.dependsOn = [string[]] $Dependencies
-
                             if ($DeploymentDelay) {
-                                [pscustomobject] $DeploymentDelayResourceObject = NewDelayResource $ResourceObject.name.Split('.')[-1] $ResourceObject.scope $Iterations $ResourceObject.dependsOn
-                                $ResourceObject.dependsOn = @(('[resourceId(''Microsoft.Resources/deployments'', ''DelayFor{0}_{1}'')]' -f $Iterations, $ResourceObject.name.Split('.')[-1]))
+                                foreach ($Dependency in $Dependencies) {
+                                    $DeploymentDelayDependenciesList.Add($Dependency)
+                                }
 
-                                $ResourceGroupResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                                if (-not $DeploymentDelayDependenciesList) {
+                                    [bool] $ForceDeploymentDelay = $true
+                                }
+
+                                $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                            } else {
+                                $ResourceObject.dependsOn = [string[]] $Dependencies
                             }
                         }
 
                         $ResourceGroupResourcesToDeploy.Add($ResourceObject)
+                    }
+
+                    if ($DeploymentDelayDependenciesList) {
+                        $DeploymentDelayResourceObject.dependsOn = [string[]] $DeploymentDelayDependenciesList
+                        $ResourceGroupResourcesToDeploy.Add($DeploymentDelayResourceObject)
+                    } elseif ($ForceDeploymentDelay) {
+                        $ResourceGroupResourcesToDeploy.Add($DeploymentDelayResourceObject)
                     }
 
                     $ResourceGroupTemplateObject.resources = [pscustomobject[]] $ResourceGroupResourcesToDeploy

@@ -3,27 +3,16 @@ function NewDelayResource {
     [OutputType([pscustomobject])]
 
     Param (
-        [Parameter(Mandatory)]
-        [string] $ResourceName,
-
-        [Parameter(Mandatory)]
-        [string] $Scope,
-
         [Parameter()]
-        [int] $Iterations = 20,
-
-        [Parameter()]
-        [string[]] $DependsOn = @()
+        [int] $Iterations = 20
     )
 
     try {
-        [string] $DeploymentName = 'DelayFor{0}_{1}' -f $Iterations, $ResourceName
-
         [pscustomobject] $DeploymentDelayResourceObject = @'
             {
                 "type": "Microsoft.Resources/deployments",
                 "apiVersion": "2019-10-01",
-                "name": "",
+                "name": "DeploymentDelay",
                 "location": "[deployment().location]",
                 "scope": "",
                 "dependsOn": [],
@@ -46,7 +35,6 @@ function NewDelayResource {
             }
 '@ | ConvertFrom-Json
 
-        $DeploymentDelayResourceObject.name = $DeploymentName
         $DeploymentDelayResourceObject.scope = $Scope
         $DeploymentDelayResourceObject.dependsOn = $DependsOn
         $DeploymentDelayResourceObject.copy.count = $Iterations
