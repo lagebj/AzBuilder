@@ -4,7 +4,7 @@
 
 @{
     RootModule        = 'AzBuilder.psm1'
-    ModuleVersion     = '0.2.3'
+    ModuleVersion     = '0.2.4'
     GUID              = 'd730c1d2-10ae-43f7-bc90-c1b822b2c46e'
     Author            = 'Lage Berger Jensen'
     CompanyName       = ''
@@ -52,7 +52,7 @@
             ProjectUri = 'https://github.com/lagebj/AzBuilder'
             # IconUri = ''
             ReleaseNotes = @'
-                * Fix internal function NewDelayResource.
+                * Fix bug where delay deployment gives errors on multiple resources with same name.
 '@
         }
     }
