@@ -9,8 +9,8 @@ function InitializeResourceTemplate {
         [Parameter(Mandatory, Position = 1)]
         [string] $Path,
 
-        [Parameter()]
-        [string] $DeploymentLocation = 'westeurope'
+        [Parameter(Mandatory, Position = 2)]
+        [string] $DeploymentLocation
     )
 
     try {
