@@ -11,7 +11,7 @@ function Build-Template {
         [string] $OutputPath,
 
         [Parameter()]
-        [string] $DeploymentLocation
+        [string] $DeploymentLocation = 'westeurope'
     )
 
     if (-not $PSBoundParameters.ContainsKey('ErrorAction')) { [System.Management.Automation.ActionPreference] $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop }
