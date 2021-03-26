@@ -28,4 +28,3 @@ function GetTemplates {
         $PSCmdlet.ThrowTerminatingError($PSItem)
     }
 }
-

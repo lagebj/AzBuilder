@@ -5,7 +5,10 @@ function Invoke-Deployment {
     Param (
         [Parameter(Mandatory)]
         [ValidateScript({Test-Path -Path $_}, ErrorMessage = 'Path {0} does not exist. Please specify a valid path.')]
-        [string] $Path
+        [string] $Path,
+
+        [Parameter()]
+        [string] $DeploymentLocation = 'westeurope'
     )
 
     if (-not $PSBoundParameters.ContainsKey('ErrorAction')) { [System.Management.Automation.ActionPreference] $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop }
@@ -28,7 +31,7 @@ function Invoke-Deployment {
                 if ($ManagementGroupTemplates) {
                     foreach ($Template in $ManagementGroupTemplates) {
                         'Deploying template {0}' -f $Template.Name
-                        $Deployment = New-AzTenantDeployment -Location 'westeurope' -TemplateFile $Template.FullName
+                        $Deployment = New-AzTenantDeployment -Location $DeploymentLocation -TemplateFile $Template.FullName
 
                         [pscustomobject] $DeploymentDetails = [pscustomobject] @{
                             Scope = 'Tenant'
@@ -44,7 +47,7 @@ function Invoke-Deployment {
                 if ($SubscriptionTemplates) {
                     foreach ($Template in $SubscriptionTemplates) {
                         'Deploying template {0}' -f $Template.Name
-                        $Deployment = New-AzTenantDeployment -Location 'westeurope' -TemplateFile $Template.FullName
+                        $Deployment = New-AzTenantDeployment -Location $DeploymentLocation -TemplateFile $Template.FullName
 
                         [pscustomobject] $DeploymentDetails = [pscustomobject] @{
                             Scope = 'Tenant'
@@ -74,7 +77,7 @@ function Invoke-Deployment {
                             if ($Templates) {
                                 foreach ($Template in $Templates) {
                                     'Deploying template {0}' -f $Template.Name
-                                    $Deployment = New-AzManagementGroupDeployment -ManagementGroupId $ManagementGroupDirectory.BaseName -Location 'westeurope' -TemplateFile $Template.FullName
+                                    $Deployment = New-AzManagementGroupDeployment -ManagementGroupId $ManagementGroupDirectory.BaseName -Location $DeploymentLocation -TemplateFile $Template.FullName
 
                                     [pscustomobject] $DeploymentDetails = [pscustomobject] @{
                                         Scope = 'ManagementGroup'
@@ -102,7 +105,7 @@ function Invoke-Deployment {
                             if ($Templates) {
                                 foreach ($Template in $Templates) {
                                     'Deploying template {0}' -f $Template.Name
-                                    $Deployment = New-AzDeployment -Location 'westeurope' -TemplateFile $Template.FullName
+                                    $Deployment = New-AzDeployment -Location $DeploymentLocation -TemplateFile $Template.FullName
 
                                     [pscustomobject] $DeploymentDetails = [pscustomobject] @{
                                         Scope = 'Subscription'
