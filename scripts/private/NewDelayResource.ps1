@@ -11,8 +11,8 @@ function NewDelayResource {
         [pscustomobject] $DeploymentDelayResourceObject = @'
             {
                 "type": "Microsoft.Resources/deployments",
-                "apiVersion": "2019-10-01",
-                "name": "DeploymentDelay",
+                "apiVersion": "2020-06-01",
+                "name": "[concat('DeploymentDelay', copyIndex())]",
                 "location": "[deployment().location]",
                 "scope": "",
                 "dependsOn": [],
@@ -25,7 +25,7 @@ function NewDelayResource {
                 "properties": {
                     "mode": "Incremental",
                     "template": {
-                        "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                         "contentVersion": "1.0.0.0",
                         "parameters": {},
                         "resources": [],

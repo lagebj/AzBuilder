@@ -147,7 +147,7 @@ function InitializeResourceTemplate {
                                 [bool] $ForceDeploymentDelay = $true
                             }
 
-                            $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                            $ResourceObject.dependsOn = @('DeploymentDelay')
                         } else {
                             $ResourceObject.dependsOn = [string[]] $Dependencies
                         }
@@ -317,7 +317,7 @@ function InitializeResourceTemplate {
                                     [bool] $ForceDeploymentDelay = $true
                                 }
 
-                                $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                                $ResourceObject.dependsOn = @('DeploymentDelay')
                             } else {
                                 $ResourceObject.dependsOn = [string[]] $Dependencies
                             }
@@ -486,7 +486,7 @@ function InitializeResourceTemplate {
                                     [bool] $ForceDeploymentDelay = $true
                                 }
 
-                                $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                                $ResourceObject.dependsOn = @('DeploymentDelay')
                             } else {
                                 $ResourceObject.dependsOn = [string[]] $Dependencies
                             }
@@ -650,7 +650,7 @@ function InitializeResourceTemplate {
                                     [bool] $ForceDeploymentDelay = $true
                                 }
 
-                                $ResourceObject.dependsOn = @('[resourceId(''Microsoft.Resources/deployments'', ''DeploymentDelay'')]')
+                                $ResourceObject.dependsOn = @('DeploymentDelay')
                             } else {
                                 $ResourceObject.dependsOn = [string[]] $Dependencies
                             }
