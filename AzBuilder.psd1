@@ -4,7 +4,7 @@
 
 @{
     RootModule        = 'AzBuilder.psm1'
-    ModuleVersion     = '0.2.1'
+    ModuleVersion     = '0.2.2'
     GUID              = 'd730c1d2-10ae-43f7-bc90-c1b822b2c46e'
     Author            = 'Lage Berger Jensen'
     CompanyName       = ''
@@ -52,7 +52,7 @@
             ProjectUri = 'https://github.com/lagebj/AzBuilder'
             # IconUri = ''
             ReleaseNotes = @'
-                * Fix missing default value for DeploymentLocation in Build-AzBuilderTemplate.
+                * Set position on parameter DeploymentLocation in Build-AzBuilderTemplate.
 '@
         }
     }
