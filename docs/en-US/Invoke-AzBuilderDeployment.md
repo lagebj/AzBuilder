@@ -13,7 +13,8 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Invoke-AzBuilderDeployment [-Path] <String> [-WhatIf] [-Confirm] [<CommonParameters>]
+Invoke-AzBuilderDeployment [-Path] <String> [[-DeploymentLocation] <String>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,6 +41,21 @@ Aliases: cf
 
 Required: False
 Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DeploymentLocation
+{{ Fill DeploymentLocation Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
