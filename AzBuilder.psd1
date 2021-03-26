@@ -4,7 +4,7 @@
 
 @{
     RootModule        = 'AzBuilder.psm1'
-    ModuleVersion     = '0.2.0'
+    ModuleVersion     = '0.2.1'
     GUID              = 'd730c1d2-10ae-43f7-bc90-c1b822b2c46e'
     Author            = 'Lage Berger Jensen'
     CompanyName       = ''
@@ -52,8 +52,7 @@
             ProjectUri = 'https://github.com/lagebj/AzBuilder'
             # IconUri = ''
             ReleaseNotes = @'
-                * Added functionality to add deployment delay template by depending on DeploymentDealy_<number of iterations>.
-                * Added DeploymentLocation parameter to Invoke-AzBuilderDeployment and Build-AzBuilderTemplate.
+                * Fix missing default value for DeploymentLocation in Build-AzBuilderTemplate.
 '@
         }
     }
