@@ -8,7 +8,10 @@ function Build-Template {
         [string] $InputPath,
 
         [Parameter(Mandatory)]
-        [string] $OutputPath
+        [string] $OutputPath,
+
+        [Parameter()]
+        [string] $DeploymentLocation
     )
 
     if (-not $PSBoundParameters.ContainsKey('ErrorAction')) { [System.Management.Automation.ActionPreference] $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop }
@@ -56,7 +59,7 @@ function Build-Template {
                 }
             }
 
-            [pscustomobject[]] $ResourceDeployments = InitializeResourceTemplate $AzBuilderScope $OutputPath
+            [pscustomobject[]] $ResourceDeployments = InitializeResourceTemplate $AzBuilderScope $OutputPath $DeploymentLocation
             if ($ResourceDeployments) {
                 foreach ($Deployment in $ResourceDeployments) {
                     'Template for deployment {0} has been created and contains resources: {1}' -f $Deployment.DeploymentName, ($Deployment.Resources -join ', ')
