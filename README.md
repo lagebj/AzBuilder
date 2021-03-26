@@ -75,6 +75,41 @@ Folders `rg-app (westeurope)` and `rg-mgmt (northeurope)` represents resource gr
 
 The ARM templates in the example will be provisioned at the scope they are represented in the hierarchy. That means that templates `policyDefinition_Deploy-ASC-Standard.json` and `policyDefinition_Deploy-LogAnalytics.json` will be deployed to management group `azb`. Template files `policyAssignment_Deploy-LogAnalytics.json` and `roleAssignment_Deploy-LogAnalytics.json` will be deployed to management group `azb-management`. Template `solution_AgentHealthAssessment.json` will be deployed to resource group `rg-mgmt`.
 
+#### Excluded folder
+
+AzBuilder excludes any folder named `.deployments` to make it easier to keep all your already deployed ARM templates without having to deploy all ARM templates every time. A `.deployments` folder can be created under every subfolder to make it easier to keep track of which ARM templates have been deployed where.
+
+If we take a look at the same folder structure as in the example above and add `.deployments` folders where applicable it would look like below. In this example all ARM templates will be skipped because they are located in a `.deployments` folder. AzBuilder provides the function `Move-AzBuilderTemplate` to automatically move any ARM templates that have been successfully deployed.
+
+📦c:\temp\AzBuilder-root\
+ ┣ 📂azb\
+ ┃ ┣ 📂.deployments\
+ ┃ ┃ ┣ 📜policyDefinition_Deploy-ASC-Standard.json\
+ ┃ ┃ ┣ 📜policyDefinition_Deploy-ASC-Standard.parameters.json\
+ ┃ ┃ ┣ 📜policyDefinition_Deploy-LogAnalytics.json\
+ ┃ ┃ ┗ 📜policyDefinition_Deploy-LogAnalytics.parameters.json\
+ ┃ ┣ 📂azb-decommissioned\
+ ┃ ┣ 📂azb-landingzones\
+ ┃ ┃ ┣ 📂azb-corp\
+ ┃ ┃ ┃ ┗ 📂b6d0fd4f-30b4-4cc4-88dd-39d84c5d881a\
+ ┃ ┃ ┃ ┃ ┗ 📂rg-app (westeurope)\
+ ┃ ┃ ┗ 📂azb-online\
+ ┃ ┣ 📂azb-platform\
+ ┃ ┃ ┣ 📂azb-connectivity\
+ ┃ ┃ ┣ 📂azb-identity\
+ ┃ ┃ ┗ 📂azb-management\
+ ┃ ┃ ┃ ┣ 📂1fb67e23-8f99-41e9-99bf-33236d129fba\
+ ┃ ┃ ┃ ┃ ┣ 📂.deployments\
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜policyAssignment_Deploy-LogAnalytics.json\
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜policyAssignment_Deploy-LogAnalytics.parameters.json\
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜roleAssignment_Deploy-LogAnalytics.json\
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜roleAssignment_Deploy-LogAnalytics.parameters.json\
+ ┃ ┃ ┃ ┃ ┣ 📂rg-mgmt (northeurope)\
+ ┃ ┃ ┃ ┃ ┃ ┣ 📂.deployments\
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜solution_AgentHealthAssessment.json\
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜solution_AgentHealthAssessment.parameters.json\
+ ┗ ┗ 📂azb-sandboxes\
+
 ### ARM templates
 
 AzBuilder parses all template files in the hierarchy and deploys them at their respective scope. It expects to have a `parameters.json` file accompanying all templates and skips any templates that does not have an accompanying parameters file. That means that you have to have a parameters file even thought your ARM template does not have any parameters, in that case the parameters file does not need to have any parameters specified either.
@@ -82,6 +117,8 @@ AzBuilder parses all template files in the hierarchy and deploys them at their r
 #### Dependencies
 
 You can specify dependencies to resources that will be deployed at the same scope in the same operation by specifying the template file name without the `.json` extension.
+
+If you need delays between deployments for some reason, you can specify a dependency named `DeploymentDelay_<some integer>`, where `<some integer>` is a number of your choice, iex: `DeploymentDelay_20`. When this is specified in a `dependsOn` block, an empty resource will be deployed the amount of times you specified in `<some integer>`. This can be useful if you encounter errors when another dependent resource has successfully been deployed, but it is not yet recognized in Azure.
 
 Example
 ```json
@@ -100,7 +137,8 @@ Example
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "dependsOn": [
-        "policyAssignment_Deploy-LogAnalytics"
+        "policyAssignment_Deploy-LogAnalytics",
+        "DeploymentDelay_20"
       ],
       "properties": {
         "principalType": "ServicePrincipal",
