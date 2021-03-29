@@ -565,7 +565,8 @@ function InitializeResourceTemplate {
                                     },
                                     "parameters": {},
                                     "template": {}
-                                }
+                                },
+                                "dependsOn": []
                             }
 '@ | ConvertFrom-Json
 
