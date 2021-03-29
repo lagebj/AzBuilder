@@ -460,7 +460,7 @@ function InitializeResourceTemplate {
 
                         if ($ResourceObject.properties.template.resources[0].dependsOn) {
                             [bool] $DeploymentDelay = $false
-                            [System.Generic.Collections.List[string]] $Dependencies = @()
+                            [System.Collections.Generic.List[string]] $Dependencies = @()
 
                             foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
                                 if (-not ($Dependency -like 'DeploymentDelay_*')) {
@@ -624,7 +624,7 @@ function InitializeResourceTemplate {
 
                         if ($ResourceObject.properties.template.resources[0].dependsOn) {
                             [bool] $DeploymentDelay = $false
-                            [System.Generic.Collections.List[string]] $Dependencies = @()
+                            [System.Collections.Generic.List[string]] $Dependencies = @()
 
                             foreach ($Dependency in $ResourceObject.properties.template.resources[0].dependsOn) {
                                 if (-not ($Dependency -like 'DeploymentDelay_*')) {

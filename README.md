@@ -77,9 +77,9 @@ The ARM templates in the example will be provisioned at the scope they are repre
 
 #### Excluded folder
 
-AzBuilder excludes any folder named `.deployments` to make it easier to keep all your already deployed ARM templates without having to deploy all ARM templates every time. A `.deployments` folder can be created under every subfolder to make it easier to keep track of which ARM templates have been deployed where.
+AzBuilder excludes any folder named `.deployments` to make it easier to keep all your already deployed ARM templates without having to deploy all ARM templates every time or delete them. A `.deployments` folder can be created under every subfolder to make it easier to keep track of which ARM templates have been deployed where.
 
-If we take a look at the same folder structure as in the example above and add `.deployments` folders where applicable it would look like below. In this example all ARM templates will be skipped because they are located in a `.deployments` folder. AzBuilder provides the function `Move-AzBuilderTemplate` to automatically move any ARM templates that have been successfully deployed.
+If we take a look at the same folder structure as in the example above and add a `.deployments` folders where applicable it would look like below. In this example all ARM templates will be skipped because they are located in a `.deployments` folder. AzBuilder provides the function `Move-AzBuilderTemplate` to automatically move any ARM templates that have been successfully deployed to their respective `.deployments` folder.
 
 📦c:\temp\AzBuilder-root\
  ┣ 📂azb\
@@ -150,13 +150,9 @@ Example
 }
 ```
 
-#### Successful deployments
-
-If deployments are successful, you can use `Move-AzBuilderTemplate` to
-
 ## Getting Started
 
-Install from the PSGallery and Import the module
+Install from the PSGallery and import the module.
 
     Install-Module AzBuilder
     Import-Module AzBuilder
@@ -168,7 +164,6 @@ There are some limitations when using AzBuilder for deployment. Any help on thes
 - AzBuilder does not support creation of subscriptions. This means that subsciptions will have to be created by other means before AzBuilder can be used to deploy resources at subscription or resource group level.
 - AzBuilder does not support tagging of Resource Groups.
 - ARM Template can not contain a parameter named `input`.
-
 
 ## More Information
 
