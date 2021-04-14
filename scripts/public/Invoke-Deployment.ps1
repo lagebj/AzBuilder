@@ -61,7 +61,7 @@ function Invoke-Deployment {
                 }
             }
 
-            [System.IO.DirectoryInfo[]] $TemplateDirectories = $Root.GetDirectories() | Where-Object -Property 'Name' -ne '.deployments'
+            [System.IO.DirectoryInfo[]] $TemplateDirectories = $Root.GetDirectories() | Where-Object -FilterScript {$_.Name -ne '.deployments' -or $_.Name -ne '.state'}
 
             if ($TemplateDirectories) {
                 [System.IO.DirectoryInfo] $RootManagementGroupDirectory = $TemplateDirectories | Where-Object -Property 'BaseName' -eq 'managementgroups'

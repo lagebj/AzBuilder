@@ -4,16 +4,17 @@
 
 @{
     RootModule        = 'AzBuilder.psm1'
-    ModuleVersion     = '0.2.6'
+    ModuleVersion     = '0.3.0'
     GUID              = 'd730c1d2-10ae-43f7-bc90-c1b822b2c46e'
     Author            = 'Lage Berger Jensen'
     CompanyName       = ''
     Copyright         = 'Lage Berger Jensen'
-    Description       = 'Module to manage hierarchical Azure deployment.'
+    Description       = 'Module to manage hierarchical Azure deployment and state.'
     FunctionsToExport = @(
         'Build-Template',
         'Invoke-Deployment',
-        'Move-Template'
+        'Move-Template',
+        'Save-State'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()
@@ -26,7 +27,9 @@
     # CLRVersion = ''
     # ProcessorArchitecture = ''
     RequiredModules = @(
-        'Az.Resources'
+        'Az.Resources',
+        'Az.Accounts',
+        'Az.Blueprint'
     )
     # RequiredAssemblies = @()
     # ScriptsToProcess = @()
@@ -52,7 +55,7 @@
             ProjectUri = 'https://github.com/lagebj/AzBuilder'
             # IconUri = ''
             ReleaseNotes = @'
-                * Fix missing dependsOn property
+                * Added functionality to process existing Azure environment.
 '@
         }
     }

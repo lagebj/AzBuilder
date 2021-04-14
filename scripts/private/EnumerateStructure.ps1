@@ -20,7 +20,7 @@ function EnumerateStructure {
             $RootScope.Templates = GetTemplates $Templates
         }
 
-        foreach ($RootItem in ($Root.GetDirectories() | Where-Object -Property 'Name' -ne '.deployments')) {
+        foreach ($RootItem in ($Root.GetDirectories() | Where-Object -FilterScript {$_.Name -ne '.deployments' -or $_.Name -ne '.state'})) {
             if ($RootItem.BaseName -match $SubscriptionRegex) {
                 [string] $Scope = 'Subscription'
                 [string] $RootItemName = $SubscriptionRegex.Match($RootItem.BaseName).Groups[0].Value
@@ -35,7 +35,7 @@ function EnumerateStructure {
             foreach ($ChildPath in $RootAzBuilderScope.Path) {
                 [System.IO.DirectoryInfo[]] $Children = Get-ChildItem -Path ('{0}\{1}' -f $Path, $ChildPath) -Recurse -Directory
 
-                foreach ($ChildItem in ($Children | Where-Object -Property 'Name' -ne '.deployments')) {
+                foreach ($ChildItem in ($Children | Where-Object -FilterScript {$_.Name -ne '.deployments' -or $_.Name -ne '.state'})) {
                     [string] $Location = [string]::Empty
 
                     if ($ChildItem.BaseName -match $SubscriptionRegex) {
